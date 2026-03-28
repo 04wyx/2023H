@@ -138,69 +138,58 @@ int main(void)
     /* USER CODE BEGIN 3 */
 		if(adcflag==1)
 		{
+      //adc标志位、波形频率位初始化
 			adcflag=0;
 			wave_flag=0;
+
+      //波形的频率索引、类型初始化
+			wave1_index=1;
+			wave2_index=1;
+			based_wave1_state=0;
+			based_wave2_state=0;
 
 			HAL_TIM_Base_Stop(&htim3);
 			HAL_ADC_Stop_DMA(&hadc1);
 			
-			wave1_index=1;
-			wave2_index=1;
-
-			based_wave1_state=0;
-			based_wave2_state=0;
-
-			FFT_test();
+			FFT_test(); //FFT变换并计算幅值
 			
-			printf("\r\nFFT\r\n");	
+			printf("\r\nFFT\r\n");	//输出FFT结果
+
 			for(int i=0;i < NPT / 2;i++)
 			{
 				printf("%.1f , ",FFT_out[i]);
 			}			
-			LED_GREEN_On;
+
 			printf("\r\nFFT_OVER\r\n");				
 			
-			wave_flag=find_peak();
+			wave_flag = find_peak();
 
-
-// /*=============================两者频率相同================================*/
-// 			if(wave_flag==0)     
-// 			{
-// 				DataSolve_Same();
-// 				wave2_index=wave1_index;
-// 				if(wave1_index<100)  //****************频率小于100kHz*************
-// 				{
-// 					if(FFT_out[wave1_index*3]>50000)  //三角+三角
-// 					{
-// 						based_wave1_state=based_wave2_state=2; 
-// 					}
-// 					else if(FFT_out[wave1_index*3]>25000)  //正弦+三角
-// 					{
-// 						based_wave1_state=1;
-// 						based_wave2_state=2;
-// 					}
-// 					else
-// 					{
-// 						based_wave1_state=based_wave2_state=1; //正弦+正弦
-// 					}
-// 				}
-// 				else //***********************频率大于等于90kHz*************************
-// 				{
-// 					if(FFT_out[wave1_index]>620000)//正弦+正弦
-// 					{
-// 						based_wave1_state=based_wave2_state=1; 
-// 					}
-// 					else if(FFT_out[wave1_index]>570000)//正弦+三角
-// 					{
-// 						based_wave1_state=1;
-// 						based_wave2_state=2;
-// 					}
-// 					else
-// 					{
-// 						based_wave1_state=based_wave2_state=2; //三角+三角
-// 					}
-// 				}
-// 			}
+/*=============================两者频率相同================================*/
+			if(wave_flag==0)     
+			{
+				DataSolve_Same();
+				wave2_index = wave1_index;
+				if(20 <= wave1_index && wave1_index <= 100)  //****************频率小于100kHz*************
+				{
+					if(FFT_out[wave1_index * 3] > 50000)  //FFT_out[wave1_index * 5] > 15000  //三角+三角
+					{
+						based_wave1_state = based_wave2_state=2; 
+					}
+					else if(FFT_out[wave1_index * 3] > 20000) //FFT_out[wave1_index * 5] > 9000 //正弦+三角
+					{
+						based_wave1_state = 1;
+						based_wave2_state = 2;
+					}
+					else
+					{
+						based_wave1_state = based_wave2_state = 1;  //正弦+正弦
+					}
+				}
+				else //***********************频率大于100kHz或者频率小于20kHz*************************
+				{
+					printf("wave_same wrong \r\n");
+				}
+			}
 // /*=============================普遍情况，两者频率不相同================================*/
 // 			else     
 // 			{
@@ -355,17 +344,17 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 int find_peak(void)
 {
 	int count=0;
-	for(int i=40;i<=200;i++)
+	for(int i = 20;i <= 100;i++)
 	{
-		if( (FFT_out[i]>FFT_out[i-1])&& (FFT_out[i]>FFT_out[i+1])&& FFT_out[i]>200000 )
+		if( (FFT_out[i] > FFT_out[i-1] ) && (FFT_out[i] > FFT_out[i+1] ) && FFT_out[i] > 200000 )
 		{
 			count++;
 //      printf("%d\r\n",i);
 		}
 	}
-	if(count==1){return 0;}  //特殊情况两者频率相同
+	if(count == 1){ return 0; }  //特殊情况两者频率相同
 	
-	else{return 1;}					//普遍情况
+	else{ return 1; }					//普遍情况
 		
 }
 /*fft——test*/
@@ -390,13 +379,13 @@ void FFT_test(void)
 void DataSolve_Same(void)
 {
 	printf("/*==========same=============*/\r\n");
-	for(int j=40;j<=200;j++)
+	for(int j = 20;j <= 100; j++)
 	{
 		if(FFT_out[wave1_index] < FFT_out[j]) 
 		{
 			wave1_index = j;            // 更新最大值索引
-//			printf("wave1_index %d\r\n",wave1_index);
 		} 
+    printf("wave1_index %d \r\n",wave1_index);
 	}
 }
 /*处理不同频率信号*/
