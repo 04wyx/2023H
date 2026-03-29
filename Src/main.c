@@ -136,13 +136,6 @@ int main(void)
   MX_TIM2_Init();
   MX_TIM4_Init();
   /* USER CODE BEGIN 2 */
-    // 正弦波，会受到 90度 相位控制
-  Set_DAC_Waveform_AutoHighRes(20000, 90.0f, WAVE_SINE);
-  
-  // 三角波，后面的 0.0f（或者随便填其他数字）不会产生任何影响
-  Set_DAC2_Waveform_AutoHighRes(100000, 0.0f, WAVE_TRIANGLE);
-
-  printf("DAC Init Over\r\n");
 	printf("START\r\n");
 	HAL_TIM_Base_Start(&htim3);
 	HAL_ADC_Start_DMA(&hadc1,(uint32_t*)&ADC_Value,NPT);	
@@ -266,12 +259,16 @@ int main(void)
 			
 /*==========================================================*/			
 			//1-----正弦波；2-----三角波
-			// wave1_Freq = wave1_index * 1000;
-			// wave2_Freq = wave2_index * 1000;
+			wave1_Freq = wave1_index * 1000;
+			wave2_Freq = wave2_index * 1000;
 			
       printf("wave1:%d    Fre:%d kHz\r\n",based_wave1_state,wave1_index);
 			printf("wave2:%d    Fre:%d kHz\r\n",based_wave2_state,wave2_index);
-
+			
+			// Set_DAC_Waveform_AutoHighRes(wave1_Freq, 90.0f, based_wave1_state);
+			// Set_DAC2_Waveform_AutoHighRes(wave2_Freq, 0.0f, based_wave2_state);
+			// printf("DAC Init Over\r\n");
+			
 			HAL_Delay(10000);
 			HAL_TIM_Base_Start(&htim3);
 			HAL_ADC_Start_DMA(&hadc1,(uint32_t*)&ADC_Value,NPT);
