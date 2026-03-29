@@ -40,29 +40,36 @@ void FFT_test(void)
 float Find_Wave_Amp(int index, int step)
 {	
 	int WAVE_INDEX = index * step;
+	int wave_change = 0;
 	float FFT_Index = FFT_out[ WAVE_INDEX];
+	float FFT_Max = FFT_Index;
 	if (WAVE_INDEX <= 100)
 	{
- 		float FFT_Max = FFT_Index;
+		if (step == 3)
+		{
+			step = 4;
+		}
   		for(int i = index * step - range * (step -2); i < index * step + range * (step -2); i++){
+			// printf("i = %d, FFT_out[i] = %.1f\r\n", i, FFT_out[i]);
   		  if(FFT_out[i] >= FFT_Max)
     		{
     	 	 FFT_Max = FFT_out[i];
-			//  printf("wave_index = %d, i = %d, FFT_out[i] = %.1f\r\n", WAVE_INDEX, i, FFT_out[i]);
+			 wave_change = i;
    			}
- 		}	
+ 		}
+		// printf("IN100:wave_index = %d, i = %d, FFT_out[i] = %.1f , FFT_Max = %.1f\r\n", WAVE_INDEX, wave_change, FFT_out[WAVE_INDEX], FFT_Max);	
 	  return FFT_Max;
 	}
 	else
 	{
- 		float FFT_Max = FFT_Index;
   		for(int i = (index - range) * step; i < (index + range) * step; i++){
   		  if(FFT_out[i] >= FFT_Max)
     		{
     	 	 FFT_Max = FFT_out[i];
-			//  printf("wave_index = %d, i = %d, FFT_out[i] = %.1f\r\n", WAVE_INDEX, i, FFT_out[i]);
+			 wave_change = i; 
    			}
  		}	
+		// printf("OUT100:wave_index = %d, i = %d, FFT_out[i] = %.1f , FFT_Max = %.1f\r\n", WAVE_INDEX, wave_change, FFT_out[WAVE_INDEX], FFT_Max);
 	  return FFT_Max;
 	}
 
