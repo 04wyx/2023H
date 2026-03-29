@@ -19,6 +19,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "adc.h"
+#include "dac.h"
 #include "dma.h"
 #include "tim.h"
 #include "usart.h"
@@ -131,6 +132,8 @@ int main(void)
   MX_ADC1_Init();
   MX_TIM3_Init();
   MX_USART1_UART_Init();
+  MX_DAC_Init();
+  MX_TIM6_Init();
   /* USER CODE BEGIN 2 */
 	printf("START\r\n");
 	HAL_TIM_Base_Start(&htim3);
