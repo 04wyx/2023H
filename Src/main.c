@@ -34,6 +34,7 @@
 #include "arm_const_structs.h"
 #include "FFT.h"
 #include "Config.h"
+#include "intimDAC.h"
 
 /* USER CODE END Includes */
 
@@ -42,10 +43,6 @@
 
 void DataSolve_Same(void);
 void DataSolve_Different(void);
-// int find_peak(void);
-// void FFT_test(void);
-// float Find_Wave_Amp(int index,int step);
-// int wave_set(int index);
 
 uint8_t adcflag = 0,wave_flag = 0;
 
@@ -74,10 +71,6 @@ uint32_t wave2_Freq = 0;
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-typedef enum {
-    WAVE_SINE = 0,    // 正弦波
-    WAVE_TRIANGLE = 1 // 三角波
-} WaveformType;
 
 uint16_t SinArray[MAX_WAVE_LENGTH];  // 给 DAC1 (TIM2) 用
 uint16_t SinArray2[MAX_WAVE_LENGTH]; // 给 DAC2 (TIM4) 用 
@@ -143,6 +136,13 @@ int main(void)
   MX_TIM2_Init();
   MX_TIM4_Init();
   /* USER CODE BEGIN 2 */
+    // 正弦波，会受到 90度 相位控制
+  Set_DAC_Waveform_AutoHighRes(20000, 90.0f, WAVE_SINE);
+  
+  // 三角波，后面的 0.0f（或者随便填其他数字）不会产生任何影响
+  Set_DAC2_Waveform_AutoHighRes(100000, 0.0f, WAVE_TRIANGLE);
+
+  printf("DAC Init Over\r\n");
 	printf("START\r\n");
 	HAL_TIM_Base_Start(&htim3);
 	HAL_ADC_Start_DMA(&hadc1,(uint32_t*)&ADC_Value,NPT);	
@@ -335,77 +335,6 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
     adcflag = 1; // Handle ADC conversion complete event
   }
 }
-// //查找FFT结果误差范围内最大值
-// float Find_Wave_Amp(int index, int step)
-// {
-//   float FFT_Index = FFT_out[ index * step-1];
-//   // float FFT_Index_5 = FFT_out[ index * 5];
-//   float FFT_Max = FFT_Index;
-//   for(int i = index * step - range * (step -1); i < index * step + range * (step -1); i++){
-//     if(FFT_out[i] > FFT_Max)
-//     {
-//       FFT_Max = FFT_out[i];
-//     }
-//   }
-//   return FFT_Max;
-// }
-// //修正wave_index的偏差
-// int wave_set(int index)
-// {
-// //  if(index < 20)
-// //  { 
-// //    index = 20; 
-// //  }
-// //  else if(index > 100)
-// //  { 
-// //    index = 100; 
-// //  }
-//   int corrected_index = index + range;
-//   int num = corrected_index / 5;
-//   int index_new = num * 5;
-// //	printf("%d,%d,%d\r\n",index,num,index_new);
-//   if(index_new >= (index - range) && index_new <= (index + range))
-//   {
-//     return index_new;
-//   }else{
-// 		return index;
-// 	}
-// }
-// /*判断两个信号频率是否一样*/
-// int find_peak(void)
-// {
-// 	int count=0;
-// 	for(int i = 20 - range;i <= 100 + range;i++)
-// 	{
-// 		if( (FFT_out[i] > FFT_out[i-1] ) && (FFT_out[i] > FFT_out[i+1] ) && FFT_out[i] > 100000 )
-// 		{
-// 			count++;
-// //			printf("count = %d\r\n",i);
-// 		}
-// 	}
-//   printf("wave_flag = %d\r\n",count);
-
-// 	if(count == 1){ return 1; }  //特殊情况两者频率相同
-// 	else{ return 2; }					//普遍情况
-// }
-// /*fft——test*/
-// void FFT_test(void)
-// {
-// 	printf("ADC \r\n");
-// 	for(int i=0;i<NPT;i++)
-// 	{
-// 		ADC_Float[i]=(float)ADC_Value[i];
-// //		printf("%d ,",ADC_Value[i]);
-// 	}			
-// 	printf("\r\nADC Over\r\n");
-// 	for(int j=0;j < NPT; j++)
-// 	{
-// 		FFT_in[j*2]=ADC_Float[j];
-// 		FFT_in[j*2+1]=0;				
-// 	}			
-// 	arm_cfft_f32(&arm_cfft_sR_f32_len1024,FFT_in,0,1);		 
-// 	arm_cmplx_mag_f32(FFT_in,FFT_out,NPT/2);	
-// }
 /*处理相同频率的信号*/
 void DataSolve_Same(void)
 {
