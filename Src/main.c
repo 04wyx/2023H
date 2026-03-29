@@ -74,6 +74,13 @@ uint32_t wave2_Freq = 0;
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+typedef enum {
+    WAVE_SINE = 0,    // 正弦波
+    WAVE_TRIANGLE = 1 // 三角波
+} WaveformType;
+
+uint16_t SinArray[MAX_WAVE_LENGTH];  // 给 DAC1 (TIM2) 用
+uint16_t SinArray2[MAX_WAVE_LENGTH]; // 给 DAC2 (TIM4) 用 
 
 /* USER CODE END PD */
 
@@ -133,7 +140,8 @@ int main(void)
   MX_TIM3_Init();
   MX_USART1_UART_Init();
   MX_DAC_Init();
-  MX_TIM6_Init();
+  MX_TIM2_Init();
+  MX_TIM4_Init();
   /* USER CODE BEGIN 2 */
 	printf("START\r\n");
 	HAL_TIM_Base_Start(&htim3);
@@ -223,13 +231,13 @@ int main(void)
 					if(wave2_index != 3 * wave1_index)//普遍情况 不是恰好三倍 
 					{
             printf("not 3\r\n");
-						if( fabs(FFT_Out_wave1 / 9.0f - FFT_Out_3_wave1 ) < 10000 && FFT_Out_wave1 > FFT_Out_3_wave1)
+						if( fabs(FFT_Out_wave1 / 9.0f - FFT_Out_3_wave1 ) < 15000 && FFT_Out_wave1 > FFT_Out_3_wave1)
 						{
 							based_wave1_state = 2;  //wave1三角
 						}
 						else{based_wave1_state = 1;}  //wave1正弦
 						
-						if( fabs(FFT_Out_wave2 /9.0f - FFT_Out_3_wave2 ) < 10000 && FFT_Out_wave2 > FFT_Out_3_wave2 &&  FFT_Out_3_wave2 > FFT_Out_5_wave2)
+						if( fabs(FFT_Out_wave2 /9.0f - FFT_Out_3_wave2 ) < 15000 && FFT_Out_wave2 > FFT_Out_3_wave2 &&  FFT_Out_3_wave2 > FFT_Out_5_wave2)
 						{
 							based_wave2_state = 2;  //wave2三角
 						}
